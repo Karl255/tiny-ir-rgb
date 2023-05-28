@@ -1,46 +1,122 @@
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include <util/delay.h>
+#include <init.h>
+#include <ir.h>
+#include <control.h>
+#include <mode_static.h>
 
-int main() {
-	DDRB = 1 << PB4 | 1 << PB1 | 1 << PB0;
-	
-	TCCR0A =
-		0b10 << COM0A0 | // enable PWM on OC0A, non-inverting mode
-		0b10 << COM0B0 | // enable PWM on OC0B, non-inverting mode
-		0b01 << WGM00; // phase correct PWM mode (halves frequency)
-	
-	TCCR0B =
-		0 << WGM02 | // count to 0xFF
-		0b010 << CS00; // CLK / 2 / 8 = ~2 Hz PWM
-	
-	TCCR1 =
-		0b0101 << CS10; // CLK / 16 = ~2 kHz PWM
+// in ~0.5ms units
+volatile uint16_t time = 0;
 
-	GTCCR =
-		1 << PWM1B |
-		0b10 << COM1B0; // PWM mode
-
-	OCR0A = 0;
-	OCR0B = 0;
-	OCR1B = 0;
+int main(void) {
+	init();
+	sei();
 	
 	for (;;) {
-		do {
-			OCR0A++;
-			_delay_ms(4);
-		} while (OCR0A);
-		OCR0A = 0;
+		if (ir_readout.status == IrStatus::transmission && (is_on || ir_readout.command == Command::on)) {
+			ir_readout.status = IrStatus::none;
+			
+			switch (ir_readout.command) {
+				case Command::on:
+					if (!is_on) {
+						brightness = BRIGHTNESS_MAX;
+						is_on = true;
+					}
+						
+					break;
+				
+				case Command::off:
+					if (is_on) {
+						is_on = false;
+					}
+					
+					break;
+				
+				case Command::reset_alternate:
+					brightness = BRIGHTNESS_MAX;
+					previous_mode = Mode::none;
+					break;
+				
+				case Command::increment:
+					if (brightness < BRIGHTNESS_MAX) {
+						brightness++;
+					}
+					
+					break;
+				
+				case Command::decrement:
+					if (brightness > BRIGHTNESS_MIN) {
+						brightness--;
+					}
+					
+					break;
+				
+				case Command::rg_cycle:
+					break;
+				
+				case Command::rgw_cycle:
+					break;
+				
+				case Command::hue_cycle:
+					break;
+				
+				case Command::static_W   : mode = Mode::static_; Static::set(255, 255, 255); break;
+				case Command::static_R   : mode = Mode::static_; Static::set(255,   0,   0); break;
+				case Command::static_RRRG: mode = Mode::static_; Static::set(255, 102,   0); break;
+				case Command::static_RRG : mode = Mode::static_; Static::set(255, 204,   0); break;
+				case Command::static_RGG : mode = Mode::static_; Static::set(204, 255,   0); break;
+				case Command::static_RGGG: mode = Mode::static_; Static::set(102, 255,   0); break;
+				case Command::static_G   : mode = Mode::static_; Static::set(  0, 255,   0); break;
+				case Command::static_GGGB: mode = Mode::static_; Static::set(  0, 255, 102); break;
+				case Command::static_GGB : mode = Mode::static_; Static::set(  0, 255, 204); break;
+				case Command::static_GBB : mode = Mode::static_; Static::set(  0, 204, 255); break;
+				case Command::static_GBBB: mode = Mode::static_; Static::set(  0, 102, 255); break;
+				case Command::static_B   : mode = Mode::static_; Static::set(  0,   0, 255); break;
+				case Command::static_BBBR: mode = Mode::static_; Static::set(102,   0, 255); break;
+				case Command::static_BBR : mode = Mode::static_; Static::set(204,   0, 255); break;
+				case Command::static_BRR : mode = Mode::static_; Static::set(255,   0, 204); break;
+				case Command::static_BRRR: mode = Mode::static_; Static::set(255,   0, 102); break;
+				
+				default:
+					break;
+			}
+		}
 		
-		do {
-			OCR0B++;
-			_delay_ms(4);
-		} while (OCR0B);
+		if (is_on) {
+			if (mode != previous_mode) {
+				previous_mode = mode;
+
+				switch (mode) {
+					case Mode::static_:
+						Static::init();
+						break;
+				
+					default:
+						break;
+				}
+			}
 		
-		do {
-			OCR1B++;
-			_delay_ms(4);
-		} while (OCR1B);
+			switch (mode) {
+				case Mode::static_:
+					Static::tick();
+					break;
+				
+				default:
+					break;
+			}
+			
+			// TODO: tick output state machine (for smooth transitions); have setOutputColors() and setOutputColorsSmooth()
+		} else {
+			setOutputColors(0, 0, 0);
+		}
+		
+		_delay_ms(10);
 	}
 	
 	return 0;
+}
+
+ISR(TIMER1_OVF_vect) {
+	time++;
 }
