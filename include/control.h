@@ -9,13 +9,24 @@
 
 #define BRIGHTNESS_MAX 10
 #define BRIGHTNESS_MIN 1
+#define SMOOTH_OUTPUT_TIME_STEP 10
 
-// TODO
+enum class Mode : uint8_t {
+	none = 0,
+	static_ = 1,
+	cycle_rg = 2,
+	cycle_rgw = 3,
+	cycle_hue = 4
+};
+
+extern bool is_on;
+extern Mode mode;
+extern Mode previous_mode;
+
+extern uint8_t brightness;
 extern uint8_t target_r;
 extern uint8_t target_g;
 extern uint8_t target_b;
-
-extern uint8_t brightness;
 
 /*
 05 04 06 07 | +    -    OFF  ON
@@ -58,16 +69,6 @@ enum class Command : uint8_t {
 	static_W = 0x0b,
 };
 
-enum class Mode : uint8_t {
-	none = 0,
-	static_ = 1,
-	cycle_rg = 2,
-	cycle_rgw = 3,
-	cycle_hue = 4
-};
-
-extern bool is_on;
-extern Mode mode;
-extern Mode previous_mode;
-
 void setOutputColors(uint8_t r, uint8_t g, uint8_t b);
+void setOutputSmooth(uint8_t r, uint8_t g, uint8_t b);
+void tickSmoothOutput();

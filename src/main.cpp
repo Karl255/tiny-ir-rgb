@@ -106,7 +106,7 @@ int main(void) {
 					break;
 			}
 			
-			// TODO: tick output state machine (for smooth transitions); have setOutputColors() and setOutputColorsSmooth()
+			tickSmoothOutput();
 		} else {
 			setOutputColors(0, 0, 0);
 		}

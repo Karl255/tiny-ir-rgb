@@ -28,5 +28,5 @@ void init(void) {
 	MCUCR = 0b10 << ISC00; // INT0 triggers on falling edge
 	GIMSK = 1 << INT0; // enable INT0
 	
-	//TIMSK = 1 << TOIE1; // timer 1 overflow interrupt
+	TIMSK = 1 << TOIE1; // timer 1 overflow interrupt
 }

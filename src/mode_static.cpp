@@ -8,7 +8,7 @@ uint8_t Static::b;
 
 void Static::init(void) { }
 void Static::tick(void) {
-	setOutputColors(Static::r, Static::g, Static::b);
+	setOutputSmooth(Static::r, Static::g, Static::b);
 }
 
 void Static::set(uint8_t r, uint8_t g, uint8_t b) {
