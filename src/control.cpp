@@ -9,10 +9,6 @@ uint8_t target_r;
 uint8_t target_g;
 uint8_t target_b;
 
-static inline uint8_t applyBrightness(uint8_t val) {
-	return val * brightness / BRIGHTNESS_MAX;
-}
-
 void setOutputColors(uint8_t r, uint8_t g, uint8_t b) {
 	setOutputSmooth(r, g, b);
 	PWM_R = applyBrightness(r);

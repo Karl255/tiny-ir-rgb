@@ -7,7 +7,9 @@
 #include <mode_static.h>
 
 // in ~0.5ms units
-volatile uint16_t time = 0;
+volatile uint16_t now = 0;
+uint16_t last_smooth_tick = 0;
+uint16_t last_mode_tick = 0;
 
 int main(void) {
 	init();
@@ -99,24 +101,29 @@ int main(void) {
 		
 			switch (mode) {
 				case Mode::static_:
-					Static::tick();
+					if (now - last_mode_tick >= STATIC_TICK_TIME_STEP) {
+						last_mode_tick = now;
+						Static::tick();
+					}
+					
 					break;
 				
 				default:
 					break;
 			}
-			
-			tickSmoothOutput();
 		} else {
-			setOutputColors(0, 0, 0);
+			setOutputSmooth(0, 0, 0);
 		}
 		
-		_delay_ms(10);
+		if (now - last_smooth_tick >= SMOOTH_TICK_TIME_STEP) {
+			last_smooth_tick = now;
+			tickSmoothOutput();
+		}
 	}
 	
 	return 0;
 }
 
 ISR(TIMER1_OVF_vect) {
-	time++;
+	now++;
 }

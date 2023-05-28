@@ -9,7 +9,8 @@
 
 #define BRIGHTNESS_MAX 10
 #define BRIGHTNESS_MIN 1
-#define SMOOTH_OUTPUT_TIME_STEP 10
+#define SMOOTH_TICK_TIME_STEP 2
+#define STATIC_TICK_TIME_STEP 100
 
 enum class Mode : uint8_t {
 	none = 0,
@@ -72,3 +73,7 @@ enum class Command : uint8_t {
 void setOutputColors(uint8_t r, uint8_t g, uint8_t b);
 void setOutputSmooth(uint8_t r, uint8_t g, uint8_t b);
 void tickSmoothOutput();
+
+inline uint8_t applyBrightness(uint8_t val) {
+	return val * brightness / BRIGHTNESS_MAX;
+}

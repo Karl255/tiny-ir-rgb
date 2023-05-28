@@ -8,7 +8,11 @@ uint8_t Static::b;
 
 void Static::init(void) { }
 void Static::tick(void) {
-	setOutputSmooth(Static::r, Static::g, Static::b);
+	setOutputSmooth(
+		applyBrightness(Static::r),
+		applyBrightness(Static::g),
+		applyBrightness(Static::b)
+	);
 }
 
 void Static::set(uint8_t r, uint8_t g, uint8_t b) {
