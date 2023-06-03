@@ -9,9 +9,11 @@
 
 #define BRIGHTNESS_MAX 10
 #define BRIGHTNESS_MIN 1
+
+// in ~0.5ms units
 #define SMOOTH_TICK_TIME_STEP 2
-#define STATIC_TICK_TIME_STEP 100
-#define CYCLE_TICK_TIME_STEP 40
+#define STATIC_TICK_TIME_STEP 200
+#define CYCLE_TICK_TIME_STEP 50
 
 enum class Mode : uint8_t {
 	none = 0,

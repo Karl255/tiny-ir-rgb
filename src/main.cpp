@@ -1,12 +1,12 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <util/delay.h>
 #include <init.h>
 #include <ir.h>
 #include <control.h>
 #include <mode_static.h>
 #include <mode_rg_cycle.h>
 #include <mode_rgw_cycle.h>
+#include <mode_hue_cycle.h>
 
 // in ~0.5ms units
 volatile uint16_t now = 0;
@@ -98,13 +98,17 @@ int main(void) {
 					case Mode::static_:
 						Static::init();
 						break;
-						
+					
 					case Mode::rg_cycle:
 						RgCycle::init();
 						break;
-						
+					
 					case Mode::rgw_cycle:
 						RgwCycle::init();
+						break;
+					
+					case Mode::hue_cycle:
+						HueCycle::init();
 						break;
 				
 					default:
@@ -131,6 +135,14 @@ int main(void) {
 					if (now - last_mode_tick >= CYCLE_TICK_TIME_STEP) {
 						last_mode_tick = now;
 						RgwCycle::tick();
+					}
+					
+					break;
+				
+				case Mode::hue_cycle:
+					if (now - last_mode_tick >= CYCLE_TICK_TIME_STEP) {
+						last_mode_tick = now;
+						HueCycle::tick();
 					}
 					
 					break;
