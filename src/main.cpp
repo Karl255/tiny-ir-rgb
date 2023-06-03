@@ -5,6 +5,8 @@
 #include <ir.h>
 #include <control.h>
 #include <mode_static.h>
+#include <mode_rg_cycle.h>
+#include <mode_rgw_cycle.h>
 
 // in ~0.5ms units
 volatile uint16_t now = 0;
@@ -13,6 +15,7 @@ uint16_t last_mode_tick = 0;
 
 int main(void) {
 	init();
+	init_control();
 	sei();
 	
 	for (;;) {
@@ -22,63 +25,65 @@ int main(void) {
 			switch (ir_readout.command) {
 				case Command::on:
 					if (!is_on) {
-						brightness = BRIGHTNESS_MAX;
-						is_on = true;
+						setIsOn(true);
 					}
 						
 					break;
 				
 				case Command::off:
 					if (is_on) {
-						is_on = false;
+						setIsOn(false);
 					}
 					
 					break;
 				
 				case Command::reset_alternate:
-					brightness = BRIGHTNESS_MAX;
+					setBrightness(BRIGHTNESS_MAX);
 					previous_mode = Mode::none;
 					break;
 				
 				case Command::increment:
 					if (brightness < BRIGHTNESS_MAX) {
-						brightness++;
+						setBrightness(brightness + 1);
 					}
 					
 					break;
 				
 				case Command::decrement:
 					if (brightness > BRIGHTNESS_MIN) {
-						brightness--;
+						setBrightness(brightness - 1);
 					}
 					
 					break;
 				
 				case Command::rg_cycle:
+					setMode(Mode::rg_cycle);
 					break;
 				
 				case Command::rgw_cycle:
+					setMode(Mode::rgw_cycle);
 					break;
 				
 				case Command::hue_cycle:
+					setMode(Mode::hue_cycle);
 					break;
 				
-				case Command::static_W   : mode = Mode::static_; Static::set(255, 255, 255); break;
-				case Command::static_R   : mode = Mode::static_; Static::set(255,   0,   0); break;
-				case Command::static_RRRG: mode = Mode::static_; Static::set(255, 102,   0); break;
-				case Command::static_RRG : mode = Mode::static_; Static::set(255, 204,   0); break;
-				case Command::static_RGG : mode = Mode::static_; Static::set(204, 255,   0); break;
-				case Command::static_RGGG: mode = Mode::static_; Static::set(102, 255,   0); break;
-				case Command::static_G   : mode = Mode::static_; Static::set(  0, 255,   0); break;
-				case Command::static_GGGB: mode = Mode::static_; Static::set(  0, 255, 102); break;
-				case Command::static_GGB : mode = Mode::static_; Static::set(  0, 255, 204); break;
-				case Command::static_GBB : mode = Mode::static_; Static::set(  0, 204, 255); break;
-				case Command::static_GBBB: mode = Mode::static_; Static::set(  0, 102, 255); break;
-				case Command::static_B   : mode = Mode::static_; Static::set(  0,   0, 255); break;
-				case Command::static_BBBR: mode = Mode::static_; Static::set(102,   0, 255); break;
-				case Command::static_BBR : mode = Mode::static_; Static::set(204,   0, 255); break;
-				case Command::static_BRR : mode = Mode::static_; Static::set(255,   0, 204); break;
-				case Command::static_BRRR: mode = Mode::static_; Static::set(255,   0, 102); break;
+				case Command::static_W   : setMode(Mode::static_); Static::set(255, 255, 255); break;
+				case Command::static_R   : setMode(Mode::static_); Static::set(255,   0,   0); break;
+				case Command::static_RRRG: setMode(Mode::static_); Static::set(255, 102,   0); break;
+				case Command::static_RRG : setMode(Mode::static_); Static::set(255, 204,   0); break;
+				case Command::static_RGG : setMode(Mode::static_); Static::set(204, 255,   0); break;
+				case Command::static_RGGG: setMode(Mode::static_); Static::set(102, 255,   0); break;
+				case Command::static_G   : setMode(Mode::static_); Static::set(  0, 255,   0); break;
+				case Command::static_GGGB: setMode(Mode::static_); Static::set(  0, 255, 102); break;
+				case Command::static_GGB : setMode(Mode::static_); Static::set(  0, 255, 204); break;
+				case Command::static_GBB : setMode(Mode::static_); Static::set(  0, 204, 255); break;
+				case Command::static_GBBB: setMode(Mode::static_); Static::set(  0, 102, 255); break;
+				case Command::static_B   : setMode(Mode::static_); Static::set(  0,   0, 255); break;
+				case Command::static_BBBR: setMode(Mode::static_); Static::set(102,   0, 255); break;
+				case Command::static_BBR : setMode(Mode::static_); Static::set(204,   0, 255); break;
+				case Command::static_BRR : setMode(Mode::static_); Static::set(255,   0, 204); break;
+				case Command::static_BRRR: setMode(Mode::static_); Static::set(255,   0, 102); break;
 				
 				default:
 					break;
@@ -93,17 +98,39 @@ int main(void) {
 					case Mode::static_:
 						Static::init();
 						break;
+						
+					case Mode::rg_cycle:
+						RgCycle::init();
+						break;
+						
+					case Mode::rgw_cycle:
+						RgwCycle::init();
+						break;
 				
 					default:
 						break;
 				}
 			}
-		
+			
 			switch (mode) {
 				case Mode::static_:
 					if (now - last_mode_tick >= STATIC_TICK_TIME_STEP) {
 						last_mode_tick = now;
 						Static::tick();
+					}
+					
+					break;
+				
+				case Mode::rg_cycle:
+					if (now - last_mode_tick >= CYCLE_TICK_TIME_STEP) {
+						last_mode_tick = now;
+						RgCycle::tick();
+					}
+				
+				case Mode::rgw_cycle:
+					if (now - last_mode_tick >= CYCLE_TICK_TIME_STEP) {
+						last_mode_tick = now;
+						RgwCycle::tick();
 					}
 					
 					break;

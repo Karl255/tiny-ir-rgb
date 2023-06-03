@@ -11,13 +11,14 @@
 #define BRIGHTNESS_MIN 1
 #define SMOOTH_TICK_TIME_STEP 2
 #define STATIC_TICK_TIME_STEP 100
+#define CYCLE_TICK_TIME_STEP 40
 
 enum class Mode : uint8_t {
 	none = 0,
 	static_ = 1,
-	cycle_rg = 2,
-	cycle_rgw = 3,
-	cycle_hue = 4
+	rg_cycle = 2,
+	rgw_cycle = 3,
+	hue_cycle = 4
 };
 
 extern bool is_on;
@@ -70,10 +71,15 @@ enum class Command : uint8_t {
 	static_W = 0x0b,
 };
 
+void init_control(void);
+void setIsOn(bool is_on);
+void setMode(Mode mode);
+void setBrightness(uint8_t brightness);
+
 void setOutputColors(uint8_t r, uint8_t g, uint8_t b);
 void setOutputSmooth(uint8_t r, uint8_t g, uint8_t b);
 void tickSmoothOutput();
 
 inline uint8_t applyBrightness(uint8_t val) {
-	return val * brightness / BRIGHTNESS_MAX;
+	return (uint8_t)((uint16_t)val * (uint16_t)brightness / BRIGHTNESS_MAX);
 }
