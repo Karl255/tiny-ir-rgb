@@ -16,7 +16,7 @@ void init(void) {
 	
 	TCCR0B =
 		0 << WGM02 | // count to 0xFF
-		0b010 << CS00; // CLK / 8 (/ 2) = ~2 Hz PWM
+		0b010 << CS00; // CLK / 8 (/ 2) = ~2 kHz PWM
 	
 	TCCR1 = 0b0101 << CS10; // CLK / 16 = ~2 kHz PWM
 	GTCCR = 1 << PWM1B | 0b10 << COM1B0; // PWM mode
@@ -28,5 +28,5 @@ void init(void) {
 	MCUCR = 0b10 << ISC00; // INT0 triggers on falling edge
 	GIMSK = 1 << INT0; // enable INT0
 	
-	TIMSK = 1 << TOIE1; // timer 1 overflow interrupt
+	TIMSK = 1 << TOIE1; // enable timer 1 overflow interrupt
 }

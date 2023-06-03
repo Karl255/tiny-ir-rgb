@@ -33,12 +33,13 @@ extern uint8_t target_g;
 extern uint8_t target_b;
 
 /*
-05 04 06 07 | +    -    OFF  ON
+remote button layout, codes and functions:
+05 04 06 07 | +    -    Off  On
 09 08 0a 0b | R    G    B    W
-0d 0c 0e 0f | RRRG GGGB BBBR RST/ALT
+0d 0c 0e 0f | RRRG GGGB BBBR Reset
 15 14 16 17 | RRG  GGB  BBR  R-G
 19 18 1a 1b | RGG  GBB  BRR  R-G-W
-11 10 12 13 | RGGG GBBB BRRR HUE
+11 10 12 13 | RGGG GBBB BRRR Hue
 */
 
 enum class Command : uint8_t {
@@ -46,7 +47,7 @@ enum class Command : uint8_t {
 	on = 0x07,
 	increment = 0x05,
 	decrement = 0x04,
-	reset_alternate = 0x0f,
+	reset = 0x0f,
 	
 	rg_cycle = 0x17,
 	rgw_cycle = 0x1b,

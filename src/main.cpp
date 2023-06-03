@@ -1,7 +1,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <init.h>
-#include <ir.h>
+#include <ir_NEC.h>
 #include <control.h>
 #include <mode_static.h>
 #include <mode_rg_cycle.h>
@@ -37,7 +37,7 @@ int main(void) {
 					
 					break;
 				
-				case Command::reset_alternate:
+				case Command::reset:
 					setBrightness(BRIGHTNESS_MAX);
 					previous_mode = Mode::none;
 					break;

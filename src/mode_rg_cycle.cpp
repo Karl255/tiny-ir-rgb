@@ -3,7 +3,7 @@
 #include <mode_rg_cycle.h>
 
 // 8 bytes reserved
-#define EEPROM_START 16
+#define EEPROM_START 24
 
 uint8_t RgCycle::step;
 uint8_t RgCycle::r;

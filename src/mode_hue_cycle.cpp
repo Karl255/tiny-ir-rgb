@@ -3,7 +3,7 @@
 #include <mode_hue_cycle.h>
 
 // 8 bytes reserved
-#define EEPROM_START 16
+#define EEPROM_START 32
 
 uint8_t HueCycle::step;
 uint8_t HueCycle::r;
